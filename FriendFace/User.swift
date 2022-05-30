@@ -7,14 +7,14 @@
 
 import Foundation
 
-struct Friend: Codable {
-    let id: String
+struct Friend: Identifiable, Codable {
+    let id: UUID
     let name: String
 }
 
 
-struct User: Codable {
-    let id: String
+struct User: Identifiable, Codable {
+    let id: UUID
     let isActive: Bool
     let name: String
     let age: Int
@@ -26,9 +26,13 @@ struct User: Codable {
     let tags: [String]
     let friends: [Friend]
     
-    static let example: [User] = [
+    static var example: [User] {
     
-        User(id: "908723401",
+        let idOne = UUID()
+        let idTwo = UUID()
+    
+    return [
+        User(id: idOne,
              isActive: true,
              name: "Tony Stark",
              age: 45, company: "Avengers",
@@ -38,11 +42,11 @@ struct User: Codable {
              registered: Date(),
              tags: ["leader","weapon","playboy"],
              friends: [
-                Friend(id: "908723402", name: "Amy Shark")
+                Friend(id: idTwo, name: "Amy Shark")
              ]
             ),
         
-        User(id: "908723402",
+        User(id: idTwo,
              isActive: false,
              name: "Amy Shark",
              age: 21, company: "self-employed",
@@ -52,12 +56,10 @@ struct User: Codable {
              registered: Date(),
              tags: ["attorney","marathon","meditation"],
              friends: [
-                Friend(id: "908723401", name: "Tony Stark")
+                Friend(id: idOne, name: "Tony Stark")
              ]
             )
     ]
+    }
 }
 
-struct Response: Codable {
-    let users: [User]
-}

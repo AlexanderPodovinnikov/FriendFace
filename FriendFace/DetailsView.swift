@@ -12,29 +12,36 @@ struct DetailsView: View {
     
     
     var body: some View {
-        VStack(alignment: .leading) {
-            Text(user.name)
-                .font(.title)
-            HStack {
-                Text("Age: \(user.age), ")
-                Text("Company: \(user.company)")
-            }
-            .font(.headline)
-            .padding([.top, .bottom])
-            
+        List {
+            Section {
             Text(user.about)
                 .font(.subheadline)
-            Text("Friends:")
-                .font(.headline)
-                .padding(.top)
-            ScrollView {
-                ForEach(user.friends, id:\.id) {
+                .padding(.vertical)
+            } header: {
+                Text("About")
+            }
+            
+            Section {
+                HStack {
+                    Text("Age: \(user.age), Company: \(user.company)")
+                }
+                Text("Address: \(user.address)")
+            } header: {
+                Text("Details")
+            }
+                
+            Section {
+                ForEach(user.friends) {
                     Text($0.name)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
+            } header: {
+                Text("Friends")
             }
         }
-        .padding()
+        .listStyle(.grouped)
+        .navigationTitle(user.name)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

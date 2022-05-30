@@ -14,7 +14,7 @@ struct ContentView: View {
     
     var body: some View {
         NavigationView {
-            List(users, id: \.name) { user in
+            List(users) { user in
                 NavigationLink {
                     DetailsView(user: user)
                 } label: {
