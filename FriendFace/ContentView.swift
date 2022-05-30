@@ -8,35 +8,42 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var users = [User]()
+    @State private var users: [User]
     
     let urlString = "https://www.hackingwithswift.com/samples/friendface.json"
     
     var body: some View {
         NavigationView {
             List(users, id: \.name) { user in
-                HStack {
-                    Text(user.name)
-                    Spacer()
-                    Image(systemName: user.isActive ? "person.crop.circle.badge.checkmark" : "person.crop.circle.badge.xmark")
-                        .foregroundColor(user.isActive ? .green : .red)
+                NavigationLink {
+                    DetailsView(user: user)
+                } label: {
+                    HStack {
+                        Text(user.name)
+                        Spacer()
+                        Image(systemName: user.isActive ? "person.crop.circle.badge.checkmark" : "person.crop.circle.badge.xmark")
+                            .foregroundColor(user.isActive ? .green : .red)
+                    }
                 }
             }
             .task() {
-                await loadData()
+                if users.isEmpty {
+                    await loadData()
+                }
             }
             .navigationTitle("FriendFace")
             
             Text("Welcome")
         }
-        
+    }
+    
+    init(users: [User] = [User]()) {
+        self.users = users
     }
     
     func loadData() async {
         
         print("Hello")
-        if !users.isEmpty { return }
-        
         guard let url = URL(string: urlString) else {
             print("Invalid URL")
             return
@@ -59,7 +66,7 @@ struct ContentView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView(users: User.example)
             .previewInterfaceOrientation(.portraitUpsideDown)
     }
 }
