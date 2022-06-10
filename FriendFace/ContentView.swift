@@ -6,9 +6,12 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct ContentView: View {
-    @State private var users: [User]
+    @Environment(\.managedObjectContext) var moc
+    @FetchRequest(sortDescriptors: [SortDescriptor<CachedUser>(\.isActive, order: .reverse), SortDescriptor(\.name)], predicate: nil) var users: FetchedResults<CachedUser>
+    @State public var loadedUsers = [User]()
     
     let urlString = "https://www.hackingwithswift.com/samples/friendface.json"
     
@@ -19,17 +22,15 @@ struct ContentView: View {
                     DetailsView(user: user)
                 } label: {
                     HStack {
-                        Text(user.name)
+                        Text(user.wrappedName)
                         Spacer()
                         Image(systemName: user.isActive ? "person.crop.circle.badge.checkmark" : "person.crop.circle.badge.xmark")
                             .foregroundColor(user.isActive ? .green : .red)
                     }
                 }
             }
-            .task() {
-                if users.isEmpty {
-                    await loadData()
-                }
+            .onAppear().task() {
+                await loadData()
             }
             .navigationTitle("FriendFace")
             
@@ -37,11 +38,8 @@ struct ContentView: View {
         }
     }
     
-    init(users: [User] = [User]()) {
-        self.users = users
-    }
-    
     func loadData() async {
+        if !loadedUsers.isEmpty { return }
         
         print("Hello")
         guard let url = URL(string: urlString) else {
@@ -53,8 +51,37 @@ struct ContentView: View {
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .iso8601
             if let decoded = try? decoder.decode([User].self, from: data) {
-                users = decoded
-                print("Loaded \(users.count) records")
+                loadedUsers = decoded
+                print("Loaded \(loadedUsers.count) records")
+                
+                await MainActor.run() {
+                    for user in loadedUsers {
+                        let newUser = CachedUser(context: moc)
+                        newUser.id = user.id
+                        newUser.name = user.name
+                        newUser.age = user.age
+                        newUser.about = user.about
+                        newUser.company = user.company
+                        newUser.address = user.address
+                        newUser.email = user.email
+                        newUser.registered = user.registered
+                        newUser.isActive = user.isActive
+                        newUser.tags = user.tags.joined(separator: ",")
+                        
+                        for friend in user.friends {
+                            let newFriend = CachedFriend(context: moc)
+                            newFriend.id = friend.id
+                            newFriend.name = friend.name
+                            newUser.addToFriends(newFriend)
+                        }
+                    }
+                    if moc.hasChanges {
+                        try? moc.save()
+                        print("Database updated")
+                    } else {
+                        print("Nothing new")
+                    }
+                }
             } else {
                 print("WTF???")
             }
@@ -66,7 +93,7 @@ struct ContentView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(users: User.example)
+        ContentView()
             .previewInterfaceOrientation(.portraitUpsideDown)
     }
 }

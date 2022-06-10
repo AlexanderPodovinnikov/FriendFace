@@ -17,7 +17,7 @@ struct User: Identifiable, Codable {
     let id: UUID
     let isActive: Bool
     let name: String
-    let age: Int
+    let age: Int16
     let company: String
     let email: String
     let address: String
