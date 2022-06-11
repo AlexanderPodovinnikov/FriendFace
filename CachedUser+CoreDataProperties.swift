@@ -50,6 +50,25 @@ extension CachedUser {
             $0.wrappedName < $1.wrappedName
         }
     }
+    
+    convenience init(user: User, context: NSManagedObjectContext) {
+        self.init(context: context)
+        self.id = user.id
+        self.name = user.name
+        self.age = user.age
+        self.about = user.about
+        self.company = user.company
+        self.address = user.address
+        self.email = user.email
+        self.registered = user.registered
+        self.isActive = user.isActive
+        self.tags = user.tags.joined(separator: ",")
+        
+        for friend in user.friends {
+            let newFriend = CachedFriend(friend: friend, context: context)
+            self.addToFriends(newFriend)
+        }
+    }
 
 }
 

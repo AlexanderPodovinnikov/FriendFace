@@ -38,6 +38,23 @@ struct DetailsView: View {
             } header: {
                 Text("Friends")
             }
+            Section {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack {
+                        ForEach(user.wrappedTags, id: \.self) {
+                                Text($0)
+                                    .font(.subheadline)
+                                    .foregroundColor(.white)
+                                    .padding(3)
+                                    .background(.blue)
+                                    .clipShape(RoundedRectangle(cornerRadius: 5))
+                        }
+                    }
+                }
+                
+            } header: {
+                Text("Tags")
+            }
         }
         .listStyle(.grouped)
         .navigationTitle(user.wrappedName)
@@ -45,18 +62,12 @@ struct DetailsView: View {
     }
 }
 
-struct DetailsView_Previews: PreviewProvider {
-    static let moc = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
-    
-    static var previews: some View {
-        let user = CachedUser(context: moc)
-        user.name = "Sample Samloff"
-        user.about = "This is sample user for previews"
-        user.age = 19
-        user.address = "Sv Nedelia 101 Sofia BG"
-                
-        return NavigationView {
-            DetailsView(user: user)
-        }
-    }
-}
+//struct DetailsView_Previews: PreviewProvider {
+//    static let moc = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+//
+//    static var previews: some View {
+//        return NavigationView {
+//            DetailsView(user: CachedUser(user: User.example[0], context: moc))
+//        }
+//    }
+//}

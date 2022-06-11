@@ -24,6 +24,11 @@ extension CachedFriend {
         name ?? "Unknown name"
     }
     
+    convenience init(friend: Friend, context: NSManagedObjectContext) {
+        self.init(context: context)
+        self.id = friend.id
+        self.name = friend.name
+    }
 
 }
 
